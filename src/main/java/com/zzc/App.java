@@ -89,6 +89,7 @@ public class App {
 	 */
     public static void main(String[] args){
     	try {
+    		String prefix = "";
     		int startNo = 0;
     		int endNo = 999999999;
     		
@@ -101,24 +102,25 @@ public class App {
     		//读取输入
     		BufferedReader strin = new BufferedReader(new InputStreamReader(System.in));
     		while(true){
-    			System.out.print("Please enter the start and end of two WayBillNo,Separated with '-' (like 5356000-5356010):");
+    			System.out.print("Please enter the start and end of two WayBillNo,Separated with '-' (like 880-5356000-5356010):");
     			String temp = strin.readLine();
     			if(!"".equals(temp)){
     				String[] inStrs = temp.split("\\-");
-    				if(inStrs.length == 2){//长度为2
-    					if(inStrs[0].length() == 7 && inStrs[1].length() == 7){
-    						startNo = Integer.parseInt(inStrs[0]);
-    						endNo = Integer.parseInt(inStrs[1]);
+    				if(inStrs.length == 3){//长度为3
+    					if(inStrs[0].length() > 0 && inStrs[1].length() == 7 && inStrs[2].length() == 7){
+    						prefix = inStrs[0];
+    						startNo = Integer.parseInt(inStrs[1]);
+    						endNo = Integer.parseInt(inStrs[2]);
     						if(endNo >= startNo && startNo/1000000 > 1 && startNo/1000000 > 1){
     							break;
     						}else{
-    							System.out.println("error:please check the format(like 5356000-5356010)");
+    							System.out.println("error:please check the format(like 880-5356000-5356010)");
     						}
     					}else{
-    						System.out.println("error:Both length of 7 (like 5356000-5356010)");
+    						System.out.println("error:Both length of 7 (like 880-5356000-5356010)");
     					}
     				}else{
-    					System.out.println("error:Separated with '-' (like 5356000-5356010)");
+    					System.out.println("error:Separated with '-' (like 880-5356000-5356010)");
     				}
     			}else{
     				System.out.println("error:can't be empty");
@@ -134,7 +136,7 @@ public class App {
     			logger.info("----->wayBillNo is {}.Is analyzing...",wayBillNo);
     			
     			//获取解析
-    			List<String> rets = analyzePage(wayBillNo);
+    			List<String> rets = analyzePage(prefix,wayBillNo);
     			rets.add(0, wayBillNo);
     			
     			allRets.add(rets);
@@ -164,15 +166,16 @@ public class App {
     
     /**
      * 根据运单号执行查询，获取返回页面html内容
+     * @param prefix 运单号前缀
      * @param wayBillNo
      * @return
      */
-    public static String search(String wayBillNo) throws Exception{
+    public static String search(String prefix, String wayBillNo) throws Exception{
     	logger.info("----->execute query:wayBillNo is {}",wayBillNo);
     	//准备参数
     	Map<String, String> param = new HashMap<>();
     	param.put("awbtype", "AWBA");
-    	param.put("AWBPRE", "880");
+    	param.put("AWBPRE", prefix);
     	param.put("AWBNUM", wayBillNo);
     	
     	//发送请求
@@ -211,15 +214,16 @@ public class App {
 	
 	/**
 	 * 解析页面内容
+	 * @param prefix
 	 * @param wayBillNo 运单号
 	 * @return
 	 */
-	public static List<String> analyzePage(String wayBillNo){
+	public static List<String> analyzePage(String prefix,String wayBillNo){
 		List<String> strs = new LinkedList<>();
 		
 		String pageContent = "";
 		try {
-			pageContent = search(wayBillNo);
+			pageContent = search(prefix,wayBillNo);
 			Document doc = Jsoup.parse(pageContent);
 			for(int i = 0 ; i < cssSelects.length ; i++){
 				String temp = doc.select(cssSelects[i]).text();
