@@ -111,7 +111,7 @@ public class App {
     						prefix = inStrs[0];
     						startNo = Integer.parseInt(inStrs[1]);
     						endNo = Integer.parseInt(inStrs[2]);
-    						if(endNo >= startNo && startNo/1000000 > 1 && startNo/1000000 > 1){
+    						if(endNo >= startNo && startNo/1000000 >= 1 && startNo/1000000 >= 1){
     							break;
     						}else{
     							System.out.println("error:please check the format(like 880-5356000-5356010)");
